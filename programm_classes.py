@@ -301,7 +301,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
     def table_context(self, point):
         menu = QMenu()
         actions = [self.entry_actions[3]]
-        if self.tree_groups.itemAt(point):
+        if self.table.itemAt(point):
             # Если попали на пароль то добавить возможность работать с паролем
             self.clicked_entry = self.table.itemAt(point)
             actions = self.entry_actions
