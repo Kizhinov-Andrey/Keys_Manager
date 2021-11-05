@@ -21,7 +21,7 @@ class CreateKeyDial(QDialog, Ui_CreateKey):
             super().accept()
         else:
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText(error_text)
@@ -40,7 +40,7 @@ class CreateGroupDial(QDialog, Ui_CreateGroup):
     def accept(self) -> None:
         if self.get_name() in self.db.get_groups() or not self.get_name():
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             if not self.get_name():
@@ -67,7 +67,7 @@ class CheckPasswordDial(QDialog, Ui_CheckPassword):
         if not check_password_hash(self.le_password.text(), self.salt, self.password):
             # Если пароли не совпадают вывести ошибку
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Passwords don't match")
@@ -115,7 +115,7 @@ class AddEntryDial(QDialog, Ui_AddEntry):
             message = "Password cannot be empty."
         if failed:
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText(message)
@@ -158,10 +158,10 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         self.clicked_entry = None
 
     def set_resent_files(self):
-        if not os.path.exists("resent_fils.txt"):
-            file = open("resent_fils.txt", "w", encoding="utf-8")
+        if not os.path.exists("resent_files.txt"):
+            file = open("resent_files.txt", "w", encoding="utf-8")
             file.close()
-        with open("resent_fils.txt", encoding="utf-8") as file:
+        with open("resent_files.txt", encoding="utf-8") as file:
             self.file_actions[3].clear()
             for el in file.readlines():
                 action = QAction(el.rstrip(), self)
@@ -238,7 +238,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
                 self.add_resent_file(self.sender().text())  # Добавляем файл в недавно открытые
         else:
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText("The file does not exist")
@@ -267,7 +267,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
     def del_group(self):
         if self.clicked_group_name == "General":
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText("You cannot delete General group")
@@ -301,7 +301,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
                     el.setEnabled(False)
         else:
             msg = QMessageBox()
-            msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+            msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
             msg.setWindowTitle("Error")
             msg.setIcon(QMessageBox.Critical)
             msg.setText("You cannot edit General group")
@@ -336,7 +336,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.clicked_entry.text(1))
         msg = QMessageBox()
-        msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+        msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
         msg.setWindowTitle("Information")
         msg.setIcon(QMessageBox.Information)
         msg.setText("User name has been copied")
@@ -346,7 +346,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.clicked_entry.text(2).rstrip())
         msg = QMessageBox()
-        msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+        msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
         msg.setWindowTitle("Information")
         msg.setIcon(QMessageBox.Information)
         msg.setText("Password has been copied")
@@ -356,7 +356,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard = QApplication.clipboard()
         clipboard.setText(self.clicked_entry.text(3))
         msg = QMessageBox()
-        msg.setWindowIcon(QIcon(r"Images/Main_icon.img"))
+        msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
         msg.setWindowTitle("Information")
         msg.setIcon(QMessageBox.Information)
         msg.setText("URL has been copied")
@@ -428,10 +428,10 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         self.group_actions[0].setEnabled(status)  # Кнопка создания новой группы
 
     def del_resent_file(self, file_name):
-        with open("resent_fils.txt", encoding='utf-8') as file:
+        with open("resent_files.txt", encoding='utf-8') as file:
             data = [el.rstrip() for el in file.readlines()]
             file.close()
-        with open("resent_fils.txt", 'w', encoding='utf-8') as file:
+        with open("resent_files.txt", 'w', encoding='utf-8') as file:
             for el in data:
                 if el != file_name:
                     print(el, file=file)
@@ -439,7 +439,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         self.set_resent_files()
 
     def add_resent_file(self, file_name):
-        with open("resent_fils.txt", encoding='utf-8') as file:
+        with open("resent_files.txt", encoding='utf-8') as file:
             data = [el.rstrip() for el in file.readlines()]
             data.insert(0, file_name)  # Добавляем файл в начало
             for i in range(1, len(data)):  # Ищем такойже файл и если находим то удаляем
@@ -449,7 +449,7 @@ class KeysManager(QMainWindow, Ui_KeysManager):
                     data.pop(i)
             data = data[:10]  # Будем зранить максимум 10 новых записей
             file.close()
-        with open("resent_fils.txt", 'w', encoding='utf-8') as file:
+        with open("resent_files.txt", 'w', encoding='utf-8') as file:
             for el in data:
                 print(el, file=file)
             file.close()

@@ -40,7 +40,7 @@ class Ui_CreateKey(object):
         CreateKey.setMaximumSize(550, 168)
         CreateKey.setFont(font)
         CreateKey.setWindowTitle("Create master key")
-        CreateKey.setWindowIcon(QIcon("Images/Main_icon.img"))
+        CreateKey.setWindowIcon(QIcon("Images/Main_icon.png"))
 
         self.buttonBox = QDialogButtonBox(CreateKey)
         self.buttonBox.setGeometry(200, 120, 341, 32)
@@ -107,7 +107,7 @@ class Ui_CheckPassword(object):
 
 class Ui_KeysManager(object):
     def setupUi(self, KeysManager):
-        KeysManager.setWindowIcon(QIcon(r"Images\Main_icon.img"))
+        KeysManager.setWindowIcon(QIcon(r"Images/Main_icon.png"))
         KeysManager.setWindowTitle("KeysManager")
         KeysManager.resize(800, 600)
         KeysManager.setFont(font)
