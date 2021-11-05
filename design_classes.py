@@ -136,20 +136,17 @@ class Ui_KeysManager(object):
         self.menubar = QMenuBar(KeysManager)
         self.menubar.setGeometry(0, 0, 800, 21)
         self.menubar.setFont(font)
-        self.menu_file = QMenu(self.menubar)
-        self.menu_file.setTitle("File")
-        self.menu_group = QMenu(self.menubar)
-        self.menu_group.setTitle("Group")
-        self.menu_entry = QMenu(self.menubar)
-        self.menu_entry.setTitle("Entry")
-        self.fill_menu_file()
+        self.menu_file = self.menubar.addMenu("File")
+        self.menu_group = self.menubar.addMenu("Group")
+        self.menu_entry = self.menubar.addMenu("Entry")
+        self.fill_menu_file(KeysManager)
         self.fill_menu_group()
         self.fill_menu_entry()
         self.menubar.addActions(
             [self.menu_file.menuAction(), self.menu_group.menuAction(), self.menu_entry.menuAction()])
         KeysManager.setMenuBar(self.menubar)
 
-    def fill_menu_file(self):
+    def fill_menu_file(self, KeysManager):
         # Создает выподающее меню
         new_db = QAction("New", self.menu_file)
         new_db.setShortcut("Ctrl+N")
@@ -161,28 +158,32 @@ class Ui_KeysManager(object):
         close_db.setShortcut("Ctrl+W")
         close_db.setIcon(QIcon(r"Images\Close_file.png"))
         close_db.setEnabled(False)
+        open_resent = QMenu("Open resent", KeysManager)
         change_key = QAction("Change master key", self.menu_file)
         change_key.setIcon(QIcon(r"Images\Change_password.png"))
         change_key.setEnabled(False)
         exit_app = QAction("Exit", self.menu_file)
         exit_app.setIcon(QIcon(r"Images\Exit_app.png"))
         exit_app.setShortcut("Ctrl+Q")
-        self.file_actions = [new_db, open_db, close_db, change_key, exit_app]
+        self.file_actions = [new_db, open_db, close_db, open_resent, change_key, exit_app]
         self.menu_file.addActions(self.file_actions[:3])
-        self.menu_file.addSeparator()
-        self.menu_file.addAction(self.file_actions[3])
+        self.menu_file.addMenu(self.file_actions[3])
         self.menu_file.addSeparator()
         self.menu_file.addAction(self.file_actions[4])
+        self.menu_file.addSeparator()
+        self.menu_file.addAction(self.file_actions[5])
 
     def fill_menu_group(self):
         add_group = QAction("Add group", self.menu_group)
         add_group.setEnabled(False)
         add_group.setIcon(QIcon(r"Images\Add_group.png"))
-        edit_group = QAction("Delete group", self.menu_group)
+        delete_group = QAction("Delete group", self.menu_group)
+        delete_group.setEnabled(False)
+        delete_group.setShortcut("Del")
+        delete_group.setIcon(QIcon(r"Images\Delete_group.png"))
+        edit_group = QAction("Edit group", self.menu_group)
         edit_group.setEnabled(False)
-        edit_group.setShortcut("Del")
-        edit_group.setIcon(QIcon(r"Images\Delete_group.png"))
-        self.group_actions = [add_group, edit_group]
+        self.group_actions = [add_group, delete_group, edit_group]
         self.menu_group.addActions(self.group_actions)
 
     def fill_menu_entry(self):
