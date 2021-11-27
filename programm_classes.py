@@ -5,6 +5,18 @@ import sqlite3
 import os.path
 
 
+class DeveloperDial(QDialog, Ui_Developer):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setupUi(self)
+
+
+class UserGuideDial(QDialog, Ui_UserGuide):
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setupUi(self)
+
+
 class CreateKeyDial(QDialog, Ui_CreateKey):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -14,15 +26,15 @@ class CreateKeyDial(QDialog, Ui_CreateKey):
         # Если пароли не совпадают или пароль не введен вывести окно с ошибкой
         error_text = None
         if self.le_create_password.text() == self.le_repeat_password.text() == '':
-            error_text = "The password must not be empty."
+            error_text = "Пароль не может быть пустой строкой"
         elif self.le_create_password.text() != self.le_repeat_password.text():
-            error_text = "Passwords don't match."
+            error_text = "Пароли не совпадают"
         if error_text is None:
             super().accept()
         else:
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
             msg.setText(error_text)
             msg.exec_()
@@ -68,9 +80,9 @@ class CheckPasswordDial(QDialog, Ui_CheckPassword):
             # Если пароли не совпадают вывести ошибку
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("Passwords don't match")
+            msg.setText("Неправильный пароль")
             msg.exec_()
             self.le_password.setText("")
         else:
@@ -106,17 +118,17 @@ class AddEntryDial(QDialog, Ui_AddEntry):
         message = None
         if not (self.le_title.text() and self.le_user_name.text() and self.le_url.text()):
             failed = True
-            message = "Fill in the empty fields."
+            message = "Заполните пустые поля"
         elif self.le_password.text() != self.le_repeat.text():
             failed = True
-            message = "Password don't match."
+            message = "Пароли не совпадают"
         elif not self.le_password.text():
             failed = True
-            message = "Password cannot be empty."
+            message = "Пароль не может быть пустой строкой"
         if failed:
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
             msg.setText(message)
             msg.exec_()
@@ -193,9 +205,12 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         self.table.customContextMenuRequested.connect(self.table_context)
         self.table.itemClicked.connect(self.table_clicked)  # Нажатие на пароль
 
+        self.help_actions[0].triggered.connect(self.user_guide)  # Справка пользователя
+        self.help_actions[1].triggered.connect(self.developer)  # Автор
+
     def create_file(self):
         # Поучаем путь по которому нужно сохранить файл
-        patch, ok = QFileDialog.getSaveFileName(self, "Create database file", '', "Database files (*.db)")
+        patch, ok = QFileDialog.getSaveFileName(self, "Создать файл базы данных", '', "База данных (*.SQLITE)")
         if ok:
             dlg = CreateKeyDial(self)
             dlg.lbl_dir.setText(patch)
@@ -203,14 +218,14 @@ class KeysManager(QMainWindow, Ui_KeysManager):
                 salt, master_key = create_password_hash(dlg.get_key())
                 self.db = DataBase(patch, create=True, master=master_key, salt=salt)  # Подключаемся к базе данных
                 self.db.clear()  # Очищаем бд перед созданием
-                self.db.add_group("General")  # Создание первой папки General
+                self.db.add_group("Главная")  # Создание главной папки
                 self.set_status_menu_file(True)  # Активируем виджеты которые доступны после открытия файла
                 self.show_dir()  # Показываем директорию папок с таблицами
                 self.add_resent_file(patch)
 
     def open_file(self):
         # Поучаем путь по которому нужно открыть файл
-        patch, ok = QFileDialog.getOpenFileName(self, "Open database file", '', "Database files (*.db)")
+        patch, ok = QFileDialog.getOpenFileName(self, "", 'Открываем файл базы данных', "База данных (*.SQLITE)")
         if ok:
             self.db = DataBase(patch, create=False)  # Подключаемся к базе данных
             dlg = CheckPasswordDial(*self.db.get_master(), parent=self)
@@ -239,15 +254,15 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         else:
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("The file does not exist")
+            msg.setText("Файл был удален или перемещен в другую директорию")
             msg.exec_()
             self.del_resent_file(self.sender().text())
 
     def change_master_key(self):
         dlg = CreateKeyDial()
-        dlg.setWindowTitle("Change master key")
+        dlg.setWindowTitle("Изменить главный пароль")
         if dlg.exec():
             # Перезаписываем мастер ключ в базе данных
             salt, key = create_password_hash(dlg.le_create_password.text())
@@ -265,12 +280,12 @@ class KeysManager(QMainWindow, Ui_KeysManager):
                 el.setEnabled(False)
 
     def del_group(self):
-        if self.clicked_group_name == "General":
+        if self.clicked_group_name == "Главная":
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("You cannot delete General group")
+            msg.setText("Вы не можете удалить главную папку")
             msg.exec_()
         else:
             # Удаляем таблицу и перепоказываем группы
@@ -286,9 +301,9 @@ class KeysManager(QMainWindow, Ui_KeysManager):
 
     def edit_group(self):
         last_name = self.clicked_group_name
-        if last_name != "General":
+        if last_name != "Главная":
             dlg = CreateGroupDial(self.db, self)
-            dlg.setWindowTitle("Edit group")
+            dlg.setWindowTitle("Редактировать группу")
             dlg.le_group_name.setText(last_name)
             if dlg.exec():
                 self.db.edit_group(last_name, dlg.get_name())  # Добавляем таблицу в бд
@@ -302,9 +317,9 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         else:
             msg = QMessageBox()
             msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-            msg.setWindowTitle("Error")
+            msg.setWindowTitle("Ошибка")
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("You cannot edit General group")
+            msg.setText("Вы не можете редактировать главную папку")
             msg.exec_()
 
     def tree_context(self, point):
@@ -313,10 +328,10 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         if self.tree_groups.itemAt(point):
             # Если попали на группу то добавить возможность удалить группу
             self.clicked_group_name = self.tree_groups.itemAt(point).text(0)
-            del_group = QAction("Delete group", menu)
+            del_group = QAction("Удалить группу", menu)
             del_group.setIcon(QIcon(r"Images\Delete_group.png"))
             del_group.triggered.connect(self.del_group)
-            edit_group = QAction("Edit group", menu)
+            edit_group = QAction("Редактировать группу", menu)
             edit_group.triggered.connect(self.edit_group)
             actions.extend([del_group, edit_group])
         menu.addActions(actions)
@@ -337,9 +352,9 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard.setText(self.clicked_entry.text(1))
         msg = QMessageBox()
         msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-        msg.setWindowTitle("Information")
+        msg.setWindowTitle("Информация")
         msg.setIcon(QMessageBox.Information)
-        msg.setText("User name has been copied")
+        msg.setText("Логин скопирован")
         msg.exec_()
 
     def copy_password(self):
@@ -347,9 +362,9 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard.setText(self.clicked_entry.text(2).rstrip())
         msg = QMessageBox()
         msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-        msg.setWindowTitle("Information")
+        msg.setWindowTitle("Информация")
         msg.setIcon(QMessageBox.Information)
-        msg.setText("Password has been copied")
+        msg.setText("Пароль скпирован")
         msg.exec_()
 
     def copy_url(self):
@@ -357,9 +372,9 @@ class KeysManager(QMainWindow, Ui_KeysManager):
         clipboard.setText(self.clicked_entry.text(3))
         msg = QMessageBox()
         msg.setWindowIcon(QIcon(r"Images/Main_icon.png"))
-        msg.setWindowTitle("Information")
+        msg.setWindowTitle("Информация")
         msg.setIcon(QMessageBox.Information)
-        msg.setText("URL has been copied")
+        msg.setText("Ссылка скопирована")
         msg.exec_()
 
     def add_entry(self):
@@ -441,19 +456,28 @@ class KeysManager(QMainWindow, Ui_KeysManager):
     def add_resent_file(self, file_name):
         with open("resent_files.txt", encoding='utf-8') as file:
             data = [el.rstrip() for el in file.readlines()]
-            data.insert(0, file_name)  # Добавляем файл в начало
-            for i in range(1, len(data)):  # Ищем такойже файл и если находим то удаляем
-                if i >= len(data):
-                    break
-                if data[i] == file_name:
-                    data.pop(i)
-            data = data[:10]  # Будем зранить максимум 10 новых записей
+            if file_name not in data:
+                data.insert(0, file_name)  # Добавляем файл в начало
+                for i in range(1, len(data)):  # Ищем такойже файл и если находим то удаляем
+                    if i >= len(data):
+                        break
+                    if data[i] == file_name:
+                        data.pop(i)
+                data = data[:10]  # Будем зранить максимум 10 новых записей
             file.close()
         with open("resent_files.txt", 'w', encoding='utf-8') as file:
             for el in data:
                 print(el, file=file)
             file.close()
         self.set_resent_files()
+
+    def user_guide(self):
+        dlg = UserGuideDial(self)
+        dlg.exec()
+
+    def developer(self):
+        dlg = DeveloperDial(self)
+        dlg.exec()
 
 
 class DataBase:
@@ -542,7 +566,3 @@ class DataBase:
         self.cur.execute("DELETE FROM groups;")
         self.cur.execute("DELETE FROM passwords;")
         self.db.commit()
-
-
-if __name__ == '__main__':
-    print(KeysManager.del_resent_file('resent_file.txt', 'b'))
